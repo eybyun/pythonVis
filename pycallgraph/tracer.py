@@ -11,9 +11,10 @@ except ImportError:
     from queue import Queue, Empty
 
 from .util import Util
-import pycallgraph.pythonDB as pythonDB
+from pycallgraph.DBManager import pythonDB, obj_process, obj_call, obj_return
 
 pyDB = pythonDB.DB()
+listData = list()
 
 class SyncronousTracer(object):
 
@@ -21,7 +22,7 @@ class SyncronousTracer(object):
         self.processor = TraceProcessor(outputs, config)
         self.config = config
 
-    def tracer(self, frame, event, arg):
+    def tracer(self, frame, event, arg):       
         self.processor.process(frame, event, arg, self.memory())
         return self.tracer
 
@@ -37,6 +38,8 @@ class SyncronousTracer(object):
         sys.settrace(None)
 
     def done(self):
+        # Eun Young : Process, Call, Return 데이터 저장
+        pyDB.inData(listData)
         pass
 
 
@@ -126,6 +129,7 @@ class TraceProcessor(Thread):
             except Empty:
                 pass
             self.process(**data)
+        
 
     def done(self):
         while not self.trace_queue.empty():
@@ -136,7 +140,9 @@ class TraceProcessor(Thread):
         '''This function processes a trace result. Keeps track of
         relationships between calls.
         '''
+        # Eun Young : Process Data Extraction
         print("Process >>", frame, ">>", event)
+        listData.append(obj_process.OBJ_Process(frame, event))
 
         if memory is not None and self.previous_event_return:
             # Deal with memory when function has finished so local variables
@@ -161,7 +167,7 @@ class TraceProcessor(Thread):
         if event == 'call':
             keep = True
             code = frame.f_code
-            print("Call Code >>", code)
+                                   
             # Stores all the parts of a human readable name of the current call
             full_name_list = []
 
@@ -201,6 +207,11 @@ class TraceProcessor(Thread):
             # Create a readable representation of the current call
             full_name = '.'.join(full_name_list)
 
+            # Eun Young : Call Data Extraction      
+            #print("Call Code >>", str(code)[1:-1].split())
+            codeInfo = str(code)[1:-1].split()
+            listData.append(obj_call.OBJ_Calls(codeInfo[4][:-1], codeInfo[6][1:-2], codeInfo[8], class_name, func_name))
+            
             if len(self.call_stack) > self.config.max_depth:
                 keep = False
 
