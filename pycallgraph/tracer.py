@@ -11,7 +11,9 @@ except ImportError:
     from queue import Queue, Empty
 
 from .util import Util
+import pycallgraph.pythonDB as pythonDB
 
+pyDB = pythonDB.DB()
 
 class SyncronousTracer(object):
 
@@ -134,7 +136,7 @@ class TraceProcessor(Thread):
         '''This function processes a trace result. Keeps track of
         relationships between calls.
         '''
-        print("Process >>", event, ">>", frame)
+        print("Process >>", frame, ">>", event)
 
         if memory is not None and self.previous_event_return:
             # Deal with memory when function has finished so local variables
@@ -236,10 +238,11 @@ class TraceProcessor(Thread):
         if event == 'return':
 
             self.previous_event_return = True
+            print("Return >>" )
 
             if self.call_stack:
                 full_name = self.call_stack.pop(-1)
-
+                print(full_name)
                 if self.call_stack_timer:
                     start_time = self.call_stack_timer.pop(-1)
                 else:
