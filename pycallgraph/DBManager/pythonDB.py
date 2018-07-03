@@ -28,10 +28,9 @@ class DB:
             if isinstance(obj, obj_process.OBJ_Process):
                 cur.execute("insert into Process values (0,'"+str(obj.frame)[1:-1].split()[3]+"','"+obj.event+"')")
             elif isinstance(obj, obj_call.OBJ_Calls):
-                print("insert into Calls values (0,'"+obj.obj+"','"+obj.path+"',"+obj.line+",'"+obj.className+"','"+obj.funcName+"', (SELECT process_id FROM process ORDER BY process_id DESC LIMIT 1))")
                 cur.execute("insert into Calls values (0,'"+obj.obj+"','"+obj.path+"',"+obj.line+",'"+obj.className+"','"+obj.funcName+"', (SELECT process_id FROM process ORDER BY process_id DESC LIMIT 1))")
             elif isinstance(obj, obj_return.OBJ_Return):
-                print("Return DB")
+                cur.execute("insert into Returns values (0,'"+obj.className+"','"+obj.funcName+"', (SELECT process_id FROM process ORDER BY process_id DESC LIMIT 1))")
 
             #print(str(obj_pro.frame)[1:-1].split()[3])
             #print("Frame:: " , str(obj_pro.frame)[1:-1].split()[3], " Event:: ", obj_pro.event)

@@ -141,7 +141,7 @@ class TraceProcessor(Thread):
         relationships between calls.
         '''
         # Eun Young : Process Data Extraction
-        print("Process >>", frame, ">>", event)
+        #print("Process >>", frame, ">>", event)
         listData.append(obj_process.OBJ_Process(frame, event))
 
         if memory is not None and self.previous_event_return:
@@ -193,7 +193,7 @@ class TraceProcessor(Thread):
             try:
                 class_name = frame.f_locals['self'].__class__.__name__
                 full_name_list.append(class_name)
-                print("className >> ", class_name)
+                #print("className >> ", class_name)
             except (KeyError, AttributeError):
                 class_name = ''
 
@@ -201,7 +201,7 @@ class TraceProcessor(Thread):
             func_name = code.co_name
             if func_name == '?':
                 func_name = '__main__'
-            print("func_Name >> ", func_name)
+            #print("func_Name >> ", func_name)
             full_name_list.append(func_name)
 
             # Create a readable representation of the current call
@@ -249,11 +249,15 @@ class TraceProcessor(Thread):
         if event == 'return':
 
             self.previous_event_return = True
-            print("Return >>" )
-
+            
             if self.call_stack:
                 full_name = self.call_stack.pop(-1)
-                print(full_name)
+                listRe = full_name.split('.')
+                if len(listRe)==1 :
+                    listData.append(obj_return.OBJ_Return(listRe[0], ''))
+                elif len(listRe)==2 :
+                    listData.append(obj_return.OBJ_Return(listRe[0], listRe[1]))
+               
                 if self.call_stack_timer:
                     start_time = self.call_stack_timer.pop(-1)
                 else:
